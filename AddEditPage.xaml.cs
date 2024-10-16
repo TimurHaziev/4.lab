@@ -20,9 +20,64 @@ namespace Хазиев_AutoService
     /// </summary>
     public partial class AddEditPage : Page
     {
-        public AddEditPage()
+        private Service _currentService = new Service();
+
+        public AddEditPage(Service SelectedService)
         {
             InitializeComponent();
+
+            if(SelectedService != null)
+            {
+                _currentService= SelectedService;
+            }
+
+            DataContext = _currentService;
         }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            StringBuilder errors = new StringBuilder();
+            
+            if(string.IsNullOrWhiteSpace(_currentService.Title))
+            {
+                errors.AppendLine("Укажите название услуги");
+            }
+            if (_currentService.Cost <= 0)
+            {
+                errors.AppendLine("Правильно укажите стоимость услуги");
+            }
+            if (_currentService.Discount <0 || _currentService.Discount == null)
+            {
+                errors.AppendLine("Укажите скидку правильно");
+            }
+            if (string.IsNullOrWhiteSpace(_currentService.Duration))
+            {
+                errors.AppendLine("Укажите длительность услуги");
+            }
+            
+            if (errors.Length > 0)
+            {
+                MessageBox.Show(errors.ToString());
+                return;
+            }
+
+            if(_currentService.ID == 0)
+            {
+                Хазиев_АвтосервисEntities.GetContext().Service.Add(_currentService);
+            }
+
+            try
+            {
+                Хазиев_АвтосервисEntities.GetContext().SaveChanges();
+                MessageBox.Show("Информация сохранена");
+                Class1.MainFrame.GoBack();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message.ToString());
+            }
+        }
+
+
     }
 }
